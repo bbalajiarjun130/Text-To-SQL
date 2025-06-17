@@ -90,4 +90,4 @@ yarn-error.log*
 *.swp
 *.swo
 .idea/
-*.bak
+*.bakDataCSV/play_by_play.csv

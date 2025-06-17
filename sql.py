@@ -1,38 +1,31 @@
 import sqlite3
+import pandas as pd
+import os
 
-## Connect to the database
-connection=sqlite3.connect('student.db')
+csv_folder = 'DataCSV'
+db_file = 'NBA.db'
 
-## Create a cursor object to insert record, create table, retrieve data
-cursor=connection.cursor()
+# Connect to the database
+connection = sqlite3.connect(db_file)
 
-# ## Create a table
-# table_info = """
-# CREATE Table STUDENT(
-#     NAME VARCHAR(25), 
-#     CLASS VARCHAR(25), 
-#     SECTION VARCHAR(25), 
-#     MARKS INT) 
-# """
+for filename in os.listdir(csv_folder):
+    if filename.endswith('.csv'):
+        filepath = os.path.join(csv_folder, filename)
 
-# cursor.execute(table_info)
+        table_name = os.path.splitext(filename)[0]  # Use the filename without extension as table name
 
-## Insert Some more records
+        print(f"Processing file: {filename} into table: {table_name}")
 
-cursor.execute('''INSERT INTO STUDENT VALUES('Krish', 'Data Science', 'A', 90)''')
-cursor.execute('''INSERT INTO STUDENT VALUES('Rohan', 'Data Science', 'B', 85)''')
-cursor.execute('''INSERT INTO STUDENT VALUES('Sita', 'Data Science', 'A', 95)''')
-cursor.execute('''INSERT INTO STUDENT VALUES('Vikash', 'DEVOPS', 'B', 50)''')
-cursor.execute('''INSERT INTO STUDENT VALUES('Sita', 'DEVOPS', 'A', 35)''')
+        df = pd.read_csv(filepath)
 
-## Display all the records
+        df.to_sql(table_name, connection, if_exists='replace', index=False)
 
-print("The inserted records are:")
-data = cursor.execute('''SELECT * FROM STUDENT''')
+cursor = connection.cursor()
 
-for row in data:
-    print(row)
+# Create a table if it doesn't exist
+cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+print("\nTables created:")
+for row in cursor.fetchall():
+    print(row[0])
 
-## Close the connection
-connection.commit()
 connection.close()
